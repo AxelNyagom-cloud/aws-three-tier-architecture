@@ -12,13 +12,42 @@ sudo dnf install git -y
 
 ```
 #!/bin/bash
-sudo systemctl start httpd
+
+# aggiorna sistema
+yum update -y
+
+# installa web server + php + sql + git
+yum install -y httpd php php-mysqlnd mariadb105-server git
+
+# avvia apache
+systemctl start httpd
+systemctl enable httpd
+
+# entra nella directory web
 cd /var/www/html
-sudo git clone https://github.com/ajitinamdar-tech/three-tier-architecture-aws.git
-sudo mkdir api
-sudo mv /var/www/html/three-tier-architecture-aws/backend/api/* /var/www/html/api/
-sudo rm -rf /var/www/html/three-tier-architecture-aws
-sed -i 's/update-me-host/insert-your-database-host-here/g' /var/www/html/api/db_connection.php
-sed -i 's/update-me-username/insert-your-database-username-here/g' /var/www/html/api/db_connection.php
-sed -i 's/update-me-password/insert-your-database-password-here/g' /var/www/html/api/db_connection.php
+
+# scarica codice
+sudo git clone https://github.com/AxelNyagom-cloud/aws-three-tier-architecture.git
+
+# crea cartella API
+sudo mkdir -p /var/www/html/api
+
+# copia solo backend API
+sudo cp -r /var/www/html/aws-three-tier-architecture/backend/api/* /var/www/html/api/
+
+# rimuove repo inutile
+sudo rm -rf /var/www/html/aws-three-tier-architecture
+
+# CONFIG DB (IMPORTANTE)
+sudo sed -i 's/update-me-host/YOUR-RDS-ENDPOINT/g' /var/www/html/api/db_connection.php
+sudo sed -i 's/update-me-username/admin/g' /var/www/html/api/db_connection.php
+sudo sed -i 's/update-me-password/YOUR_PASSWORD/g' /var/www/html/api/db_connection.php
+
+# permessi corretti
+sudo chown -R apache:apache /var/www/html
+sudo chmod -R 755 /var/www/html
+
+# restart apache
+systemctl restart httpd
+
 ```
