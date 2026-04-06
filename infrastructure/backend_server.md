@@ -13,41 +13,35 @@ sudo dnf install git -y
 ```
 #!/bin/bash
 
-# aggiorna sistema
 yum update -y
 
-# installa web server + php + sql + git
-yum install -y httpd php php-mysqlnd mariadb105-server git
+yum install -y httpd php php-mysqlnd php-pdo php-pdo_mysql mariadb105-server git
 
-# avvia apache
 systemctl start httpd
 systemctl enable httpd
 
-# entra nella directory web
 cd /var/www/html
 
-# scarica codice
 sudo git clone https://github.com/AxelNyagom-cloud/aws-three-tier-architecture.git
 
-# crea cartella API
 sudo mkdir -p /var/www/html/api
 
-# copia solo backend API
-sudo cp -r /var/www/html/aws-three-tier-architecture/backend/api/* /var/www/html/api/
+sudo cp -r aws-three-tier-architecture/backend/api/* /var/www/html/api/
 
-# rimuove repo inutile
-sudo rm -rf /var/www/html/aws-three-tier-architecture
+sudo rm -rf aws-three-tier-architecture
 
-# CONFIG DB (IMPORTANTE)
+# CONFIG DB
 sudo sed -i 's/update-me-host/YOUR-RDS-ENDPOINT/g' /var/www/html/api/db_connection.php
 sudo sed -i 's/update-me-username/admin/g' /var/www/html/api/db_connection.php
 sudo sed -i 's/update-me-password/YOUR_PASSWORD/g' /var/www/html/api/db_connection.php
 
-# permessi corretti
-sudo chown -R apache:apache /var/www/html
-sudo chmod -R 755 /var/www/html
+# PERMESSI
+sudo usermod -a -G apache ec2-user
+sudo chown -R ec2-user:apache /var/www
+sudo chmod 2775 /var/www
+sudo find /var/www -type d -exec chmod 2775 {} \;
+sudo find /var/www -type f -exec chmod 0664 {} \;
 
-# restart apache
 systemctl restart httpd
 
 ```
